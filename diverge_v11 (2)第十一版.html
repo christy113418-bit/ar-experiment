@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务1</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --r: 8px;
+    --bg: #ffffff;
+    --bg-section: #fafaf8;
+    --bg2: #f5f5f5;
+    --bg-blue: #eff6ff;
+    --bg-red: #fff1f2;
+    --bg-yellow: #fffbeb;
+    --bg-green: #f0fdf4;
+    --bg-purple: #f5f3ff;
+    --b: #e5e7eb;
+    --b-blue: #bfdbfe;
+    --b-red: #fecdd3;
+    --b-yellow: #fde68a;
+    --b-green: #bbf7d0;
+    --b-purple: #ddd6fe;
+    --t: #111827;
+    --t2: #374151;
+    --t3: #9ca3af;
+    --t-blue: #1d4ed8;
+    --t-red: #be123c;
+    --t-yellow: #92400e;
+    --t-green: #15803d;
+    --t-purple: #6d28d9;
+    --accent-pain: #f43f5e;
+    --accent-opp: #3b82f6;
+    --accent-transfer: #22c55e;
+    --accent-reframe: #f59e0b;
+    --accent-socratic: #8b5cf6;
+    --accent-suggest: #6b7280;
+  }
+  html, body { height: 100%; font-family: var(--font); }
+  .app { display: flex; height: 100vh; background: var(--bg-section); }
+
+  /* ── LEFT NAV ── */
+  .leftnav {
+    width: 48px;
+    background: var(--bg-section);
+    border-right: 1px solid var(--b);
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding: 14px 0 14px;
+    flex-shrink: 0; gap: 6px;
+  }
+  .nav-icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 7px; color: var(--t3);
+    cursor: default; transition: background 0.15s; font-size: 15px;
+  }
+  .nav-icon:hover { background: var(--b); color: var(--t2); }
+  .nav-icon.active { background: var(--b); color: var(--t2); }
+  .nav-spacer { flex: 1; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+  .header {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--b);
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0; background: var(--bg-section);
+  }
+  .task-label { font-size: 14px; font-weight: 600; color: var(--t); flex: 1; }
+  .mode-tabs { display: flex; gap: 4px; }
+  .mode-tab {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 11px; border-radius: 20px;
+    border: 1px solid var(--b);
+    color: var(--t3); background: var(--bg2);
+    user-select: none; cursor: default;
+  }
+  .mode-tab.active { background: var(--t); color: #fff; border-color: var(--t); }
+
+  .banner {
+    padding: 8px 18px;
+    background: var(--bg-blue); border-bottom: 1px solid var(--b-blue);
+    font-size: 13px; color: var(--t-blue); line-height: 1.6;
+    flex-shrink: 0;
+  }
+
+  /* 区域标题 — 和侧栏标题同字号 */
+  .area-header {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--b);
+    flex-shrink: 0; background: var(--bg-section);
+  }
+  .area-title {
+    font-size: 14px; font-weight: 700; color: var(--t);
+  }
+
+  /* 竞品区 — 米白 */
+  .competitor-area {
+    padding: 11px 18px 13px;
+    border-bottom: 1px solid var(--b);
+    flex-shrink: 0; overflow-y: auto;
+    max-height: 34vh;
+    background: var(--bg);
+  }
+  .competitor-row {
+    display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px;
+  }
+  .competitor-row:last-child { margin-bottom: 0; }
+
+  /* chip — 白色背景 */
+  .chip {
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 13px; cursor: pointer;
+    transition: all 0.15s; user-select: none;
+    border: 1px solid var(--b);
+    background: var(--bg); color: var(--t);
+  }
+  .chip:hover { border-color: #9ca3af; background: #ececec; }
+  .chip.active {
+    background: var(--bg-blue); border-color: var(--b-blue);
+    color: var(--t-blue); font-weight: 500;
+  }
+  /* 镜腿触控操作居中 */
+  .chip-center { justify-content: center; display: flex; width: 100%; }
+
+  .chip-brand {
+    background: var(--bg); color: var(--t-blue);
+    border-color: var(--b-blue);
+    font-weight: 700; cursor: default; font-size: 12px;
+  }
+  .chip-brand:hover { background: var(--bg); border-color: var(--b-blue); }
+
+  /* 对话区 — 白色气泡，米白背景 */
+  .chat-area {
+    flex: 1; overflow-y: auto;
+    padding: 12px 18px;
+    display: flex; flex-direction: column; gap: 9px;
+    background: var(--bg);
+  }
+  .msg { display: flex; flex-direction: column; gap: 3px; }
+  .msg.user { align-items: flex-end; }
+  .msg.ai { align-items: flex-start; }
+  .msg-label { font-size: 11px; font-weight: 600; color: var(--t3); padding: 0 4px; }
+  .msg-bubble {
+    max-width: 80%; padding: 9px 13px;
+    border-radius: var(--r); font-size: 13px; line-height: 1.65;
+  }
+  /* 气泡保持白色 */
+  .msg.user .msg-bubble {
+    background: var(--bg-blue); color: var(--t-blue);
+    border: 1px solid var(--b-blue);
+    border-radius: var(--r) var(--r) 4px var(--r);
+  }
+  .msg.ai .msg-bubble {
+    background: var(--bg); color: var(--t);
+    border: 1px solid var(--b);
+    border-radius: var(--r) var(--r) var(--r) 4px;
+  }
+
+  /* 输入区 — 白色背景 */
+  .input-row {
+    padding: 10px 18px; border-top: 1px solid var(--b);
+    display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+    background: var(--bg);
+  }
+  .input-row textarea {
+    flex: 1; resize: none; font-size: 13px; font-family: var(--font);
+    color: var(--t); background: var(--bg2);
+    border: 1px solid var(--b); border-radius: var(--r);
+    padding: 8px 11px; outline: none; line-height: 1.5;
+    transition: border-color 0.15s;
+  }
+  .input-row textarea:focus { border-color: #93c5fd; }
+  .send-btn {
+    font-size: 12px; font-family: var(--font);
+    padding: 8px 15px; border-radius: var(--r);
+    background: var(--t); border: none; color: #fff;
+    cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
+  }
+  .send-btn:hover { opacity: 0.8; }
+
+  /* ── SIDEBAR — 米白，更宽 ── */
+  .sidebar {
+    width: 360px; border-left: 1px solid var(--b);
+    display: flex; flex-direction: column;
+    background: var(--bg-section); flex-shrink: 0;
+  }
+  .sidebar-title-bar {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--b);
+    flex-shrink: 0; background: var(--bg-section);
+  }
+  .sidebar-title { font-size: 14px; font-weight: 700; color: var(--t); }
+  .sidebar-chip-bar {
+    padding: 8px 15px;
+    border-bottom: 1px solid var(--b);
+    flex-shrink: 0; background: var(--bg-section);
+    text-align: center;
+  }
+  .sidebar-chip-name { font-size: 13px; color: var(--t2); }
+
+  .cards-list {
+    flex: 1; overflow-y: auto; padding: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .rcard {
+    border-radius: var(--r); padding: 10px 12px;
+    border: 1px solid; border-left: 3px solid;
+  }
+  .rcard .tag { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 5px; }
+  .rcard .txt { font-size: 13px; line-height: 1.65; }
+
+  .rcard-pain { border-color: var(--b-red); border-left-color: var(--accent-pain); background: var(--bg-red); }
+  .rcard-pain .tag, .rcard-pain .txt { color: var(--t-red); }
+  .rcard-opp { border-color: var(--b-blue); border-left-color: var(--accent-opp); background: var(--bg-blue); }
+  .rcard-opp .tag, .rcard-opp .txt { color: var(--t-blue); }
+  .rcard-transfer { border-color: var(--b-green); border-left-color: var(--accent-transfer); background: var(--bg-green); }
+  .rcard-transfer .tag, .rcard-transfer .txt { color: var(--t-green); }
+  .rcard-reframe { border-color: var(--b-yellow); border-left-color: var(--accent-reframe); background: var(--bg-yellow); }
+  .rcard-reframe .tag, .rcard-reframe .txt { color: var(--t-yellow); }
+  .rcard-socratic { border-color: var(--b-purple); border-left-color: var(--accent-socratic); background: var(--bg-purple); }
+  .rcard-socratic .tag, .rcard-socratic .txt { color: var(--t-purple); }
+  .rcard-suggest { border-color: var(--b); border-left-color: var(--accent-suggest); background: var(--bg2); }
+  .rcard-suggest .tag { color: var(--t2); }
+  .rcard-suggest .txt { color: var(--t); }
+
+  /* 条件②新增卡片颜色 */
+  .rcard-assumption { border-color: var(--b-purple); border-left-color: #8b5cf6; background: var(--bg-purple); }
+  .rcard-assumption .tag, .rcard-assumption .txt { color: var(--t-purple); }
+  .rcard-why { border-color: var(--b-green); border-left-color: #22c55e; background: var(--bg-green); }
+  .rcard-why .tag, .rcard-why .txt { color: var(--t-green); }
+  .rcard-tradeoff { border-color: var(--b-red); border-left-color: #f43f5e; background: var(--bg-red); }
+  .rcard-tradeoff .tag, .rcard-tradeoff .txt { color: var(--t-red); }
+
+  .empty-sidebar {
+    flex: 1; display: flex; align-items: center;
+    justify-content: center; padding: 24px; text-align: center;
+  }
+  .empty-sidebar p { font-size: 13px; color: var(--t3); line-height: 1.8; }
+
+  .thinking { display: flex; align-items: center; gap: 5px; padding: 3px 0; }
+  .dot { width: 6px; height: 6px; background: var(--t3); border-radius: 50%; animation: b 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes b { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .modal-card {
+    width: 320px;
+    background: #fafaf8;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .modal-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--t);
+    margin-bottom: 14px;
+  }
+  .modal-field { margin-bottom: 12px; }
+  .modal-label {
+    display: block;
+    font-size: 12px;
+    color: var(--t2);
+    margin-bottom: 6px;
+  }
+  .modal-input {
+    width: 100%;
+    font-size: 13px;
+    font-family: var(--font);
+    color: var(--t);
+    background: #fff;
+    border: 1px solid var(--b);
+    border-radius: var(--r);
+    padding: 8px 11px;
+    outline: none;
+  }
+  .modal-input:focus { border-color: #93c5fd; }
+  .send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .card-subtitle {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT NAV -->
+  <div class="leftnav">
+    <div class="nav-icon active">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </div>
+    <div class="nav-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+      </svg>
+    </div>
+    <div class="nav-spacer"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="header">
+      <span class="task-label">任务 1 · 产品功能探索</span>
+      <div class="mode-tabs">
+        <div class="mode-tab active">A 模式</div>
+        <div class="mode-tab">B 模式</div>
+      </div>
+    </div>
+
+    <div class="banner">
+      欢迎参与实验，现在开始任务 1。请根据页面中的产品信息，探索功能方向并整理你的想法。点击产品功能卡片可查看 AI 提示，也可以随时在对话框中向 AI 提问。
+    </div>
+
+    <div class="area-header"><div class="area-title">竞品功能参考</div></div>
+    <div class="competitor-area">
+      <div class="competitor-row">
+        <div class="chip chip-brand">李未可 LAWK ONE</div>
+        <div class="chip" onclick="selectChip(this,'李未可 LAWK ONE','第一视角运动录像')">第一视角运动录像</div>
+        <div class="chip" onclick="selectChip(this,'李未可 LAWK ONE','实时导航')">实时导航</div>
+        <div class="chip" onclick="selectChip(this,'李未可 LAWK ONE','镜腿触控操作')">镜腿触控操作</div>
+      </div>
+      <div class="competitor-row">
+        <div class="chip chip-brand">奇点 QIDI Vida</div>
+        <div class="chip" onclick="selectChip(this,'奇点 QIDI Vida','语音交互')">语音交互</div>
+        <div class="chip" onclick="selectChip(this,'奇点 QIDI Vida','语音对讲 + 队友位置共享')">语音对讲 + 队友位置共享</div>
+        <div class="chip" onclick="selectChip(this,'奇点 QIDI Vida','运动健康数据监测')">运动健康数据监测（心率、血氧等）</div>
+      </div>
+      <div class="competitor-row">
+        <div class="chip chip-brand">Engo</div>
+        <div class="chip" onclick="selectChip(this,'Engo','光致变色镜片')">光致变色镜片（根据光线自动调节透光率）</div>
+        <div class="chip" onclick="selectChip(this,'Engo','训练步骤提示')">训练步骤提示</div>
+      </div>
+    </div>
+
+    <div class="area-header"><div class="area-title">对话区</div></div>
+    <div class="chat-area" id="chatArea">
+      <div class="msg ai">
+        <span class="msg-label">AI</span>
+        <div class="msg-bubble">你好！我可以为你介绍这三款竞品的功能详情，也可以回答关于户外运动 AR 眼镜的问题。点击上方功能卡片查看 AI 提示，或直接在这里向我提问。</div>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <textarea id="chatInput" rows="2" placeholder="向 AI 提问，了解更多产品信息..."></textarea>
+      <button class="send-btn" onclick="sendMsg()">发送</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title-bar">
+      <div class="sidebar-title">AI 提示卡</div>
+    </div>
+    <div class="sidebar-chip-bar">
+      <div class="sidebar-chip-name" id="sidebarSub">点击功能卡片触发</div>
+    </div>
+    <div id="sidebarContent">
+      <div class="empty-sidebar">
+        <p>点击左侧功能卡片<br/>查看对应的 AI 提示</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="participantModal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-title">请输入被试信息</div>
+    <div class="modal-field">
+      <label class="modal-label" for="pidInput">被试编号</label>
+      <input class="modal-input" id="pidInput" placeholder="例：P001" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="pnameInput">被试姓名</label>
+      <input class="modal-input" id="pnameInput" placeholder="请输入姓名" />
+    </div>
+    <button class="send-btn" id="startExperimentBtn" disabled>开始实验</button>
+  </div>
+</div>
+
+<script>
+// 读取URL参数
+const params = new URLSearchParams(window.location.search);
+const condition = params.get('condition') || '1';
+let pid = params.get('pid') || '';
+let pname = params.get('pname') || '';
+
+const tagMap = {
+  'Pain Point':        '痛点 PAIN POINT',
+  'Opportunity':       '机会点 OPPORTUNITY',
+  'Transfer Logic':    '逻辑迁移 TRANSFER LOGIC',
+  'Reframe':           '重构视角 REFRAME',
+  'Hidden Assumption': '隐含假设 ASSUMPTION',
+  'Why':               '价值追问 WHY',
+  'Tradeoff':          '取舍权衡 TRADEOFF',
+  'AI推荐':            'AI 建议 SUGGESTION'
+};
+
+// 卡片颜色映射（条件②③新增类型）
+const clsMap = {
+  'Pain Point':        'rcard-pain',
+  'Opportunity':       'rcard-opp',
+  'Transfer Logic':    'rcard-transfer',
+  'Reframe':           'rcard-reframe',
+  'Hidden Assumption': 'rcard-assumption',
+  'Why':               'rcard-why',
+  'Tradeoff':          'rcard-tradeoff',
+};
+
+const suggestionClsSequence = ['rcard-pain', 'rcard-opp', 'rcard-transfer', 'rcard-reframe'];
+const qwenEndpoint = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+const qwenModel = 'qwen-plus';
+const qwenApiKey = 'sk-23a00bac8d1a49f3813f126efccd5ef4';
+const feishuAppToken = 'Ls1RbyuUgaiOG8skLZacTrxgnvf';
+const feishuTableId = 'tblTpQky8pILEtZq';
+const feishuAppId = 'cli_a96baa8dde38dbd3';
+const feishuAppSecret = 'Qen8NEdTgRo6Hbu1cZOgRg3q0k72WN0D';
+const chatSystemPrompt = '你是一个产品分析助手，帮助用户分析户外运动AR眼镜的竞品功能。竞品包括：李未可LAWK ONE（第一视角运动录像、实时导航、镜腿触控操作）、奇点QIDI Vida（语音交互、语音对讲+队友位置共享、运动健康数据监测）、Engo（光致变色镜片、训练步骤提示）。用户正在探索新产品的功能方向，你可以介绍竞品功能细节、回答用户问题，但不要直接给出产品设计建议。回答简洁，不超过150字。';
+
+const cardPromptGroups = {
+  '1': [
+    {
+      type: 'Pain Point',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张痛点反思卡片，帮助用户从该功能的失效场景出发发现设计机会。要求：1.先指出这个功能在某个具体真实场景下会失效或让用户失望 2.再追问这个失效说明了什么用户需求没有被满足 3.语气简洁直接，不给答案，引导用户自己思考 4.不超过60字。但不要给出具体的功能名称或设计方案。只输出JSON格式：{"type":"Pain Point","content":"卡片内容"}'
+    },
+    {
+      type: 'Opportunity',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张机会点反思卡片，帮助用户发现竞品尚未覆盖的需求空白。要求：1.指出现有竞品在这个功能方向上共同存在的局限或空白 2.追问这个空白里有没有还没人做过的功能方向 3.不直接给出答案，引导用户自己发现机会 4.不超过60字。但不要给出具体的功能名称或设计方案。只输出JSON格式：{"type":"Opportunity","content":"卡片内容"}'
+    },
+    {
+      type: 'Transfer Logic',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张逻辑迁移反思卡片，帮助用户从其他领域提取类似问题的解决逻辑。要求：1.举一个其他行业或产品中解决类似问题的具体例子 2.追问这个逻辑能否迁移到户外运动AR眼镜上 3.例子要具体真实，不要泛泛而谈 4.不超过60字。只输出JSON格式：{"type":"Transfer Logic","content":"卡片内容"}'
+    },
+    {
+      type: 'Reframe',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张重构视角反思卡片，帮助用户从一个全新的角度重新审视这个功能，从而激发新的产品设计方向。要求：1.提出一个和常规理解不同的问题框架或观察角度 2.根据当前功能的特点，选择最合适的一种方式提问：- 如果这个功能的定义本身有争议或局限，用「如果不把它理解为XX而理解为YY，你会怎么设计这个功能」的方式重新定义，YY必须是具体的日常语言，不能用抽象或文艺的表达 - 如果这个功能的使用场景或用户群体值得拓展，切换到一个不同的使用者身份或场景，追问从他们的角度对这个功能会有什么样的期许 - 两种句式交替使用，不要每次都选同一种 3.新框架要能让用户想到具体的设计可能性，不能停留在抽象层面 4.不超过60字。但不要给出具体的功能名称或设计方案。只输出JSON格式：{"type":"Reframe","content":"卡片内容"}'
+    }
+  ],
+  '2': [
+    {
+      type: 'Hidden Assumption',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张隐含假设反思卡片。要求：1.用「隐含假设：……」的句式，点出这个功能背后一个关于用户使用动机或使用场景的具体前提 2.这个假设要足够具体，能让人一眼看出在某些情况下可能不成立 3.最后用一句话追问：这个假设在所有用户和场景下都成立吗 4.不超过60字，假设本身不超过30字。不要自己回答，不要给出结论。只输出JSON格式：{"type":"Hidden Assumption","content":"卡片内容"}'
+    },
+    {
+      type: 'Why',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张价值追问反思卡片，帮助用户追问这个功能真正的价值依据。要求：1.追问用户为什么认为这个功能有价值，依据是什么 2.引导用户思考这个判断背后的证据是否充分 3.不给答案，只问问题 4.不超过60字。只输出JSON格式：{"type":"Why","content":"卡片内容"}'
+    },
+    {
+      type: 'Reframe',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张重构视角反思卡片，帮助用户从一个全新的角度重新审视这个功能，从而激发新的产品设计方向。要求：1.提出一个和常规理解不同的问题框架或观察角度 2.根据当前功能的特点，选择最合适的一种方式提问：- 如果这个功能的定义本身有争议或局限，用「如果不把它理解为XX而理解为YY，你会怎么设计这个功能」的方式重新定义，YY必须是具体的日常语言，不能用抽象或文艺的表达 - 如果这个功能的使用场景或用户群体值得拓展，切换到一个不同的使用者身份或场景，追问从他们的角度对这个功能会有什么样的期许 - 两种句式交替使用，不要每次都选同一种 3.新框架要能让用户想到具体的设计可能性，不能停留在抽象层面 4.不超过60字。但不要给出具体的功能名称或设计方案。只输出JSON格式：{"type":"Reframe","content":"卡片内容"}'
+    },
+    {
+      type: 'Tradeoff',
+      prompt: '你是一个产品反思助手。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请生成一张取舍权衡反思卡片，帮助用户思考选择这个功能方向需要付出的代价。要求：1.指出保留或强化这个功能会带来什么具体的代价或风险 2.追问这个代价是否值得 3.不给答案，只问问题 4.不超过60字。只输出JSON格式：{"type":"Tradeoff","content":"卡片内容"}'
+    }
+  ],
+  '3': [
+    {
+      type: 'AI推荐',
+      prompt: '你是一个产品功能顾问。用户正在分析竞品「{竞品名称}」的「{功能名称}」功能。请直接给出4个具体的功能设计建议。要求：1.建议必须基于用户刚才看到的竞品功能，在现有方案基础上延伸 2.不要提出竞品完全没有的全新方向 3.每条建议一句话，说清楚功能名称和核心设计 4.不需要解释理由。只输出JSON格式：[{"type":"AI推荐","feature":"功能名称","suggestion":"一句话描述"},{"type":"AI推荐","feature":"功能名称","suggestion":"一句话描述"},{"type":"AI推荐","feature":"功能名称","suggestion":"一句话描述"},{"type":"AI推荐","feature":"功能名称","suggestion":"一句话描述"}]'
+    }
+  ]
+};
+
+const chatHistory = [
+  { role: 'system', content: chatSystemPrompt }
+];
+
+let activeEl = null;
+let reframeAlternateToggle = false;
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[s]));
+}
+
+function getIsoTime() {
+  return new Date().toISOString();
+}
+
+function fillPrompt(template, competitorName, featureName) {
+  return template
+    .replaceAll('{竞品名称}', competitorName)
+    .replaceAll('{功能名称}', featureName);
+}
+
+async function getQwenResponse(messages) {
+  const res = await fetch(qwenEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${qwenApiKey}`
+    },
+    body: JSON.stringify({
+      model: qwenModel,
+      messages
+    })
+  });
+  if (!res.ok) {
+    throw new Error(`Qwen API error: ${res.status}`);
+  }
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content?.trim() || '';
+}
+
+function extractJson(raw) {
+  const cleaned = raw.trim();
+  const fenced = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced ? fenced[1].trim() : cleaned;
+  const start = Math.min(
+    ...['{', '[']
+      .map(char => candidate.indexOf(char))
+      .filter(index => index >= 0)
+  );
+  const end = Math.max(candidate.lastIndexOf('}'), candidate.lastIndexOf(']'));
+  if (!Number.isFinite(start) || end < start) {
+    throw new Error('Invalid JSON response');
+  }
+  return JSON.parse(candidate.slice(start, end + 1));
+}
+
+async function getFeishuTenantToken() {
+  const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      app_id: feishuAppId,
+      app_secret: feishuAppSecret
+    })
+  });
+  if (!res.ok) {
+    throw new Error(`Feishu token error: ${res.status}`);
+  }
+  const data = await res.json();
+  if (!data.tenant_access_token) {
+    throw new Error('Feishu token missing');
+  }
+  return data.tenant_access_token;
+}
+
+async function writeFeishuRecord(eventType, eventContent) {
+  if (!pid || !pname) return;
+  try {
+    const tenantToken = await getFeishuTenantToken();
+    await fetch(`https://open.feishu.cn/open-apis/bitable/v1/apps/${feishuAppToken}/tables/${feishuTableId}/records`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tenantToken}`
+      },
+      body: JSON.stringify({
+        fields: {
+          '被试ID': pid,
+          '被试姓名': pname,
+          '实验条件': condition,
+          '阶段': '发散',
+          '事件类型': eventType,
+          '事件内容': eventContent,
+          '时间戳': getIsoTime()
+        }
+      })
+    });
+  } catch (error) {
+    console.error('Feishu write failed:', error);
+  }
+}
+
+function renderSidebarLoading() {
+  document.getElementById('sidebarContent').innerHTML = `
+    <div class="empty-sidebar">
+      <div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  `;
+}
+
+function renderSidebarError() {
+  document.getElementById('sidebarContent').innerHTML = '<div class="empty-sidebar"><p>生成失败，请重试</p></div>';
+}
+
+function renderCards(cards) {
+  document.getElementById('sidebarContent').innerHTML =
+    '<div class="cards-list">' +
+    cards.map(c => {
+      const body = c.feature
+        ? `<div class="txt"><strong class="card-subtitle">${escapeHtml(c.feature)}</strong>${escapeHtml(c.suggestion || '')}</div>`
+        : `<div class="txt">${escapeHtml(c.content || '')}</div>`;
+      return `
+      <div class="rcard ${c.cls}">
+        <div class="tag">${escapeHtml(tagMap[c.type] || c.type)}</div>
+        ${body}
+      </div>`;
+    }).join('') +
+    '</div>';
+}
+
+async function buildReflectionCards(competitorName, featureName) {
+  const prompts = cardPromptGroups[condition] || cardPromptGroups['1'];
+  if (condition === '3') {
+    const raw = await getQwenResponse([{ role: 'user', content: fillPrompt(prompts[0].prompt, competitorName, featureName) }]);
+    const parsed = extractJson(raw);
+    if (!Array.isArray(parsed)) throw new Error('Invalid suggestion array');
+    return parsed.slice(0, 4).map((item, index) => ({
+      type: item.type || 'AI推荐',
+      feature: item.feature || featureName,
+      suggestion: item.suggestion || '',
+      cls: suggestionClsSequence[index] || suggestionClsSequence[suggestionClsSequence.length - 1]
+    }));
+  }
+  const results = await Promise.all(
+    prompts.map(async cfg => {
+      let promptText = cfg.prompt;
+      if (cfg.type === 'Reframe') {
+        reframeAlternateToggle = !reframeAlternateToggle;
+        const styleHint = reframeAlternateToggle
+          ? '本次必须使用第一种句式（不把XX理解为YY）。'
+          : '本次必须使用第二种句式（切换身份/场景）。';
+        promptText = `${promptText} ${styleHint}`;
+      }
+      const raw = await getQwenResponse([{ role: 'user', content: fillPrompt(promptText, competitorName, featureName) }]);
+      const parsed = extractJson(raw);
+      return {
+        type: parsed.type || cfg.type,
+        content: parsed.content || '',
+        cls: clsMap[parsed.type || cfg.type] || 'rcard-suggest'
+      };
+    })
+  );
+  return results;
+}
+
+function appendMessage(role, text) {
+  const ca = document.getElementById('chatArea');
+  const label = role === 'user' ? '你' : 'AI';
+  ca.innerHTML += `<div class="msg ${role}"><span class="msg-label">${label}</span><div class="msg-bubble">${escapeHtml(text)}</div></div>`;
+  ca.scrollTop = ca.scrollHeight;
+}
+
+function appendThinkingMessage() {
+  const ca = document.getElementById('chatArea');
+  ca.innerHTML += `<div class="msg ai"><span class="msg-label">AI</span><div class="msg-bubble thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  ca.scrollTop = ca.scrollHeight;
+}
+
+function replaceThinkingMessage(text) {
+  const ca = document.getElementById('chatArea');
+  const bubble = ca.querySelector('.msg.ai:last-child .msg-bubble');
+  if (bubble) bubble.textContent = text;
+  ca.scrollTop = ca.scrollHeight;
+}
+
+async function selectChip(el, competitorName, featureName) {
+  if (activeEl) activeEl.classList.remove('active');
+  el.classList.add('active');
+  activeEl = el;
+  document.getElementById('sidebarSub').textContent = `‹ ${featureName} ›`;
+  renderSidebarLoading();
+  await writeFeishuRecord('点击chip', `${competitorName}-${featureName}`);
+  try {
+    const cards = await buildReflectionCards(competitorName, featureName);
+    renderCards(cards);
+    await writeFeishuRecord('卡片内容', JSON.stringify(cards));
+  } catch (error) {
+    console.error(error);
+    renderSidebarError();
+  }
+}
+
+async function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const sendBtn = document.querySelector('.send-btn[onclick="sendMsg()"]');
+  appendMessage('user', text);
+  appendThinkingMessage();
+  input.value = '';
+  input.disabled = true;
+  sendBtn.disabled = true;
+  chatHistory.push({ role: 'user', content: text });
+  try {
+    const reply = await getQwenResponse(chatHistory);
+    chatHistory.push({ role: 'assistant', content: reply });
+    replaceThinkingMessage(reply);
+    await writeFeishuRecord('对话', `用户：${text} | AI：${reply}`);
+  } catch (error) {
+    console.error(error);
+    replaceThinkingMessage('生成失败，请重试');
+  } finally {
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+function setupParticipantModal() {
+  const modal = document.getElementById('participantModal');
+  const pidInput = document.getElementById('pidInput');
+  const pnameInput = document.getElementById('pnameInput');
+  const startBtn = document.getElementById('startExperimentBtn');
+
+  const syncState = () => {
+    startBtn.disabled = !pidInput.value.trim() || !pnameInput.value.trim();
+  };
+
+  if (pid) {
+    if (!pname) pname = params.get('pname') || pid;
+    modal.style.display = 'none';
+    return;
+  }
+
+  modal.style.display = 'flex';
+  pidInput.addEventListener('input', syncState);
+  pnameInput.addEventListener('input', syncState);
+  startBtn.addEventListener('click', () => {
+    const nextPid = pidInput.value.trim();
+    const nextPname = pnameInput.value.trim();
+    if (!nextPid || !nextPname) return;
+    pid = nextPid;
+    pname = nextPname;
+    modal.style.display = 'none';
+  });
+}
+
+window.addEventListener('load', setupParticipantModal);
+</script>
+</body>
+</html>
